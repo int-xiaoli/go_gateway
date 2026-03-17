@@ -1,18 +1,19 @@
 package middleware
 
 import (
-	"github.com/e421083458/gin_scaffold/public"
+	"reflect"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
-	"github.com/go-playground/universal-translator"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/int-xiaoli/go_gateway/public"
 	"gopkg.in/go-playground/validator.v9"
 	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 	zh_translations "gopkg.in/go-playground/validator.v9/translations/zh"
-	"reflect"
 )
 
-//设置Translation
+// 设置Translation
 func TranslationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//参照：https://github.com/go-playground/validator/blob/v9/_examples/translations/main.go

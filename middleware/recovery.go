@@ -3,10 +3,11 @@ package middleware
 import (
 	"errors"
 	"fmt"
-	"github.com/e421083458/gin_scaffold/public"
+	"runtime/debug"
+
 	"github.com/e421083458/golang_common/lib"
 	"github.com/gin-gonic/gin"
-	"runtime/debug"
+	"github.com/int-xiaoli/go_gateway/public"
 )
 
 // RecoveryMiddleware捕获所有panic，并且返回错误信息
