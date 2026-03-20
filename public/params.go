@@ -1,15 +1,16 @@
 package public
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/universal-translator"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/pkg/errors"
 	"gopkg.in/go-playground/validator.v9"
-	"strings"
 )
 
 func DefaultGetValidParams(c *gin.Context, params interface{}) error {
-	if err := c.ShouldBind(params); err != nil {
+	if err := c.ShouldBind(params); err != nil { //这一步才是关键的把请求结构体映射到结构体中
 		return err
 	}
 	//获取验证器
@@ -22,7 +23,7 @@ func DefaultGetValidParams(c *gin.Context, params interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = valid.Struct(params)
+	err = valid.Struct(params) //其实这一步才开始执行入参校验，通过validator库自动映射执行
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
 		sliceErrs := []string{}

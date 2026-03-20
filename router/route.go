@@ -1,9 +1,14 @@
 package router
 
 import (
+	"log"
+
 	"github.com/e421083458/golang_common/lib"
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/int-xiaoli/go_gateway/controller"
 	"github.com/int-xiaoli/go_gateway/docs"
+	"github.com/int-xiaoli/go_gateway/middleware"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -70,6 +75,58 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 		})
 	})
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	adminLoginRouter := router.Group("/admin_login")
+	// store:=sessions.NewRedisStore()
+	//这一步就是定义把session保存到redis中
+	store, err := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	if err != nil {
+		log.Fatalf("sessions.NewRedisStore err:%v", err)
+	}
+	adminLoginRouter.Use(
+		sessions.Sessions("mysession", store),
+		middleware.RecoveryMiddleware(),
+		middleware.RequestLog(),
+		middleware.TranslationMiddleware(),
+	)
+	{
+		controller.AdminLoginRegister(adminLoginRouter)
+	}
+
+	// store := sessions.NewCookieStore([]byte("secret"))
+	// apiNormalGroup := router.Group("/api")
+	// apiNormalGroup.Use(sessions.Sessions("mysession", store),
+	// 	middleware.RecoveryMiddleware(),
+	// 	middleware.RequestLog(),
+	// 	middleware.TranslationMiddleware())
+	// {
+	// 	controller.ApiRegister(apiNormalGroup)
+	// }
+
+	adminRouter := router.Group("/admin")
+	// store:=sessions.NewRedisStore()
+	//这一步就是定义把session保存到redis中
+	adminRouter.Use(
+		sessions.Sessions("mysession", store),
+		middleware.RecoveryMiddleware(),
+		middleware.RequestLog(),
+		middleware.SessionAuthMiddleware(),
+		middleware.TranslationMiddleware(),
+	)
+	{
+		controller.AdminRegister(adminRouter)
+	}
+
+	serviceRouter := router.Group("/service")
+	serviceRouter.Use(
+		sessions.Sessions("mysession", store),
+		middleware.RecoveryMiddleware(),
+		middleware.RequestLog(),
+		middleware.SessionAuthMiddleware(), //登录验证中间件
+		middleware.TranslationMiddleware())
+	{
+		controller.ServiceRegister(serviceRouter)
+	}
 
 	return router
 }
